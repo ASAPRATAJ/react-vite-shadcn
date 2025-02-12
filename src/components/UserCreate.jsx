@@ -17,7 +17,7 @@ const UserCreate = () => {
       const cookies = document.cookie.split(';');
       for (let i = 0; i < cookies.length; i++) {
         const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        if (cookie.startsWith(`${name}=`)) {
           cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
           break;
         }
@@ -53,11 +53,10 @@ const UserCreate = () => {
     } catch (error) {
       console.error('Registration error:', error);
       if (error.response && error.response.data) {
-        // Obsługa specyficznych błędów
         const errorData = error.response.data;
 
         if (errorData.email) {
-          setError(errorData.email.join(' ')); // Jeśli błędy są w tablicy
+          setError(errorData.email.join(' '));
         } else if (errorData.password) {
           setError(errorData.password.join(' '));
         } else if (errorData.detail) {
@@ -72,64 +71,70 @@ const UserCreate = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="w-screen flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-6 bg-white shadow-lg rounded-lg">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Register</h2>
 
         {message && (
-          <p className="text-green-600 text-center mb-4">
-            {message}
-          </p>
+          <p className="text-green-600 text-center mb-4">{message}</p>
         )}
 
         {error && (
-          <p className="text-red-600 text-center mb-4">
-            {error}
-          </p>
+          <p className="text-red-600 text-center mb-4">{error}</p>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-gray-700 font-semibold">Email:</label>
+            <label htmlFor="email" className="block text-gray-700 font-semibold">
+              Email:
+            </label>
             <input
+              id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-2 mt-1 text-gray-700 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label="Email address"
+              className="w-full px-4 py-2 mt-1 border rounded-md bg-gray-100 text-gray-700 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 font-semibold">Company Name:</label>
+            <label htmlFor="companyName" className="block text-gray-700 font-semibold">
+              Company Name:
+            </label>
             <input
+              id="companyName"
               type="text"
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
               required
-              className="w-full px-4 py-2 mt-1 text-gray-700 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label="Company name"
+              className="w-full px-4 py-2 mt-1 border rounded-md bg-gray-100 text-gray-700 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-gray-700 font-semibold">Password:</label>
+            <label htmlFor="password" className="block text-gray-700 font-semibold">
+              Password:
+            </label>
             <input
+              id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-4 py-2 mt-1 text-gray-700 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label="Password"
+              className="w-full px-4 py-2 mt-1 border rounded-md bg-gray-100 text-gray-700 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          <div className="flex justify-center">
-            <button
-              type="submit"
-              className="w-full px-4 py-2 text-white bg-gray-800 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-500 transition duration-300"
-            >
-              Register
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="w-full px-4 py-2 text-white bg-gray-800 rounded-md hover:bg-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-300"
+          >
+            Register
+          </button>
         </form>
       </div>
     </div>

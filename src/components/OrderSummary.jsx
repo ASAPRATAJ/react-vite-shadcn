@@ -47,7 +47,7 @@ const OrderSummary = () => {
       );
 
       console.log("Order created:", response.data);
-      navigate("/order-success");
+      navigate("/users/orders");
     } catch (error) {
       console.error("Error creating order:", error);
 

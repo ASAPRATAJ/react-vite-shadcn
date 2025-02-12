@@ -15,6 +15,7 @@ import ProductEdit from './components/ProductEdit'; // Import nowego komponentu
 import Cart from './components/Cart'; // Import komponentu Cart
 import OrderSummary from './components/OrderSummary'; // Import komponentu OrderSummary
 import Home from './components/Home';
+import EditProfile from './components/EditProfile';
 
 
 
@@ -24,13 +25,15 @@ const App = () => {
       <Navbar />
       <div style={{ paddingTop: '60px' }}>
         <Routes>
-          <Route path="/home" element={<Home />} />
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<UserLogin />} />
           <Route path="/products/create" element={<ProductCreate />} />
           <Route path="/products-admin" element={<ProductListAdmin />} />
           <Route path="/products" element={<ProductList />} />
-          <Route path="/users/create" element={<UserCreate />} />
+          <Route path="/register" element={<UserCreate />} />
           <Route path="/users" element={<UserList />} />
+          <Route path="/profile" element={<EditProfile />} />
+
 {/*           <Route path="/orders/create" element={<OrderCreate />} /> */}
           <Route path="/orders" element={<OrderList />} />
           <Route path="/users/orders" element={<UserOrderList />} />

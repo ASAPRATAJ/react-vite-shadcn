@@ -140,7 +140,7 @@ const Navbar = () => {
 
         {/* Środek: Logo */}
         <div className="flex justify-center mx-4">
-          <Link to="/home">
+          <Link to="/">
             <img
               src="/images/logo.jpg" // Upewnij się, że ścieżka jest poprawna
               alt="Logo"

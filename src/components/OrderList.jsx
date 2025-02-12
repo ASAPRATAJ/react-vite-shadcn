@@ -84,8 +84,12 @@ const OrderList = () => {
                 Złożone dnia: {new Date(order.created_at).toLocaleString()}
               </p>
               <p className="text-gray-600 mb-2">
-                Termin odbioru przez klienta:{order.user} {new Date(order.delivery_date).toLocaleString()}
+                Termin odbioru przez klienta: {new Date(order.delivery_date).toLocaleString()}
               </p>
+              <p className="font-bold text-gray-800 mb-2">
+                Klient: {order.company_name}
+              </p>
+
 
               {/* Sekcja z produktami jest rozwijana/zwijana */}
               {expandedOrderIds.includes(order.id) && (

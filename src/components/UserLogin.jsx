@@ -35,7 +35,7 @@ const UserLogin = () => {
            }));
 
            // Przekierowanie na stronę główną po zalogowaniu
-           navigate('/home');
+           navigate('/');
 
            // Odświeżenie strony po zalogowaniu
            window.location.reload();

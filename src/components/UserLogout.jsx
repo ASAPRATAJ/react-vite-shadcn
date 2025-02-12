@@ -15,7 +15,7 @@ const UserLogout = () => {
         };
 
         // Przekierowanie do strony logowania i odświeżenie strony
-        navigate('/home');
+        navigate('/');
         refreshPage();
 
     }, [navigate]);
