@@ -1,134 +1,165 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode'; // Importujemy jwtDecode, aby odczytać token (opcjonalnie)
+import ErrorAlert from './ErrorAlert'; // Import komponentu do wyświetlania błędów
+import SuccessAlert from './SuccessAlert'; // Import komponentu do wyświetlania sukcesów
 
 function ProductList() {
- const [products, setProducts] = useState([]);
- const [tags, setTags] = useState({});
- const [loading, setLoading] = useState(true);
- const [error, setError] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]); // Produkty po filtracji
+  const [tags, setTags] = useState([]); // Lista tagów
+  const [selectedTag, setSelectedTag] = useState('all'); // Wybrany tag (domyślnie "all")
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [message, setMessage] = useState(''); // Przechowuje komunikaty o sukcesie
+  const [quantities, setQuantities] = useState({});
 
- // Dodajemy stan dla ilości produktów w koszyku
- const [quantities, setQuantities] = useState({});
+  useEffect(() => {
+    const token = localStorage.getItem('token');
 
- useEffect(() => {
-   const token = localStorage.getItem('token');
+    if (!token) {
+      setError('You need to be logged in to view the products.');
+      setLoading(false);
+      return;
+    }
 
-   if (!token) {
-     setError('You need to be logged in to view the products.');
-     setLoading(false);
-     return;
-   }
+    try {
+      const decodedToken = jwtDecode(token);
+      console.log('Logged in as:', decodedToken.username);
+    } catch (e) {
+      console.error('Failed to decode token:', e);
+      setError('Invalid token.');
+      setLoading(false);
+      return;
+    }
 
-   try {
-     const decodedToken = jwtDecode(token);
-     console.log('Logged in as:', decodedToken.username);
-   } catch (e) {
-     console.error('Failed to decode token:', e);
-     setError('Invalid token.');
-     setLoading(false);
-     return;
-   }
+    const fetchProductsAndTags = async () => {
+      try {
+        const productsResponse = await axios.get('http://127.0.0.1:8000/api/products/', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-   const fetchProductsAndTags = async () => {
-     try {
-       const productsResponse = await axios.get('http://127.0.0.1:8000/api/products/', {
-         headers: {
-           Authorization: `Bearer ${token}`,
-         },
-       });
+        const tagsResponse = await axios.get('http://127.0.0.1:8000/api/products/tags/', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-       const tagsResponse = await axios.get('http://127.0.0.1:8000/api/products/tags/', {
-         headers: {
-           Authorization: `Bearer ${token}`,
-         },
-       });
+        const tagsWithAllOption = [{ id: 'all', name: 'Wszystkie' }, ...tagsResponse.data];
 
-       const tagsMap = {};
-       tagsResponse.data.forEach(tag => {
-         tagsMap[tag.id] = tag.name;  // Mapujemy tag ID na jego nazwę
-       });
+        setProducts(productsResponse.data); // Ustaw produkty
+        setFilteredProducts(productsResponse.data); // Domyślnie wyświetl wszystkie produkty
+        setTags(tagsWithAllOption); // Dodaj opcję "Wszystkie" na początku listy tagów
+      } catch (error) {
+        console.error('There was an error fetching the products or tags!', error);
+        setError('There was an error fetching the products or tags!');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-       setProducts(productsResponse.data);  // Ustaw produkty
-       setTags(tagsMap);  // Ustaw tagi (ID -> Nazwa)
-     } catch (error) {
-       setError('There was an error fetching the products or tags!');
-     } finally {
-       setLoading(false);
-     }
-   };
+    fetchProductsAndTags();
+  }, []);
 
-   fetchProductsAndTags();
- }, []);
+  // Funkcja do filtrowania produktów po tagu
+  const handleTagChange = (tagId) => {
+    setSelectedTag(tagId);
 
- // Funkcja do dodawania produktu do koszyka
- const addToCart = async (productId, quantity) => {
-   const token = localStorage.getItem('token');
+    if (tagId === 'all') {
+      // Jeśli wybrano "Wszystkie", pokaż wszystkie produkty
+      setFilteredProducts(products);
+    } else {
+      // Filtruj produkty po tagu
+      const filtered = products.filter((product) =>
+        product.tags.includes(parseInt(tagId)) // Upewnij się, że porównujesz typy zgodnie z formatem danych
+      );
+      console.log("Filtered products:", filtered); // Debugowanie filtrowanych produktów
+      setFilteredProducts(filtered);
+    }
+  };
 
-   try {
-     await axios.post('http://127.0.0.1:8000/api/cart/items/', {
-       product_id: productId,
-       quantity: quantity,
-     }, {
-       headers: {
-         Authorization: `Bearer ${token}`,
-       },
-     });
-     alert('Product added to cart successfully!');
-   } catch (error) {
-     console.error('Error adding to cart:', error);
-     alert('Failed to add product to cart.');
-   }
- };
+  // Funkcja do dodawania produktu do koszyka
+  const addToCart = async (productId, quantity) => {
+    const token = localStorage.getItem('token');
 
- // Funkcje do zwiększania i zmniejszania ilości
- const increaseQuantity = (productId) => {
-   setQuantities((prev) => ({
-     ...prev,
-     [productId]: (prev[productId] || 0) + 1,
-   }));
- };
+    try {
+      await axios.post(
+        'http://127.0.0.1:8000/api/cart/items/',
+        { product_id: productId, quantity: quantity },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setMessage('Produkt został pomyślnie dodany do koszyka!'); // Komunikat o sukcesie
+    } catch (error) {
+      console.error('Błąd podczas dodawania produktu do koszyka:', error);
+      setError('Nie udało się dodać produktu do koszyka.'); // Komunikat o błędzie
+    }
+  };
 
- const decreaseQuantity = (productId) => {
-   setQuantities((prev) => {
-     const currentQuantity = prev[productId] || 0;
-     if (currentQuantity > 0) {
-       return {
-         ...prev,
-         [productId]: currentQuantity - 1,
-       };
-     }
-     return prev;
-   });
- };
+  // Funkcje do zwiększania i zmniejszania ilości
+  const increaseQuantity = (productId) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [productId]: (prev[productId] || 0) + 1,
+    }));
+  };
 
- if (loading) {
-   return (
-     <div className="flex justify-center items-center h-screen">
-       <p className="text-lg font-semibold">Loading products...</p>
-     </div>
-   );
- }
+  const decreaseQuantity = (productId) => {
+    setQuantities((prev) => {
+      const currentQuantity = prev[productId] || 0;
+      if (currentQuantity > 0) {
+        return { ...prev, [productId]: currentQuantity - 1 };
+      }
+      return prev;
+    });
+  };
 
- if (error) {
-   return (
-     <div className="flex justify-center items-center h-screen">
-       <p className="text-red-500">{error}</p>
-     </div>
-   );
- }
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-lg font-semibold">Loading products...</p>
+      </div>
+    );
+  }
 
- return (
-    <div className="w-full min-h-screen px-6 bg-white shadow-md rounded-lg mt-10">
-      <h1 className="text-3xl font-bold mb-6 text-center">Product List</h1>
-      {products.length === 0 ? (
-        <p className="text-center">No products available.</p>
+  return (
+    <div className="w-screen min-h-screen px-6 bg-white shadow-md rounded-lg mt-10">
+      <h1 className="text-3xl font-bold mb-6 text-center">Lista produktów</h1>
+
+      {/* Alert błędu */}
+      <ErrorAlert error={error} onClose={() => setError(null)} />
+
+      {/* Alert sukcesu */}
+      <SuccessAlert message={message} onClose={() => setMessage(null)} />
+
+
+      {/* Dropdown do filtrowania po tagach */}
+      <div className="mb-6 flex justify-center">
+        <select
+          value={selectedTag}
+          onChange={(e) => handleTagChange(e.target.value)}
+          className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2
+          focus:ring-blue-500 bg-white"
+        >
+          {tags.map((tag) => (
+            <option key={tag.id} value={tag.id}>
+              {tag.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+
+      {filteredProducts.length === 0 ? (
+        <p className="text-center">Brak dostępnych produktów</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <div
               key={product.id}
-              className="border border-gray-300 rounded-lg p-4 hover:shadow-lg transition duration-300"
+              className="border border-gray-300 rounded-lg p-4 hover:shadow-lg transition duration-300
+              flex flex-col justify-between h-full"
             >
               <img
                 src={product.image}
@@ -136,7 +167,14 @@ function ProductList() {
                 className="w-full h-48 object-cover rounded-md mb-4"
               />
               <h3 className="text-xl font-semibold mb-2">{product.title}</h3>
-              <p className="text-gray-600 mb-2">{product.description}</p>
+              <div
+                className="product-description-container cursor-pointer"
+                onClick={() => alert(product.description)} // Wyświetlenie pełnego opisu w oknie alertu
+              >
+                <p className="text-gray-600 mb-2">
+                  {product.description}
+                </p>
+              </div>
               <p className="text-lg font-bold mb-2">{product.price} zł/kg</p>
 
               {/* Wyświetlanie tagów */}
@@ -147,7 +185,7 @@ function ProductList() {
                       key={tagId}
                       className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-semibold"
                     >
-                      {tags[tagId]}
+                      {tags[tagId]?.name || 'Nieznany'}
                     </span>
                   ))}
                 </div>
@@ -181,8 +219,7 @@ function ProductList() {
         </div>
       )}
     </div>
-
- );
+  );
 }
 
 export default ProductList;

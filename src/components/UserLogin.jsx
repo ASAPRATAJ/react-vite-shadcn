@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import ErrorAlert from './ErrorAlert'; // Import globalnego komponentu do wyświetlania błędów
 
 const UserLogin = () => {
    const [email, setEmail] = useState('');
@@ -40,20 +41,20 @@ const UserLogin = () => {
            // Odświeżenie strony po zalogowaniu
            window.location.reload();
 
-       } catch (error) {
-           console.error('Login error:', error);
-           if (error.response && error.response.data) {
-               // Sprawdzamy odpowiedź serwera na błąd
-               const errorData = error.response.data;
-               if (errorData.detail) {
-                   setError(errorData.detail); // Wyświetlamy szczegółowy błąd
-               } else {
-                   setError('Invalid email or password'); // Domyślny komunikat
-               }
-           } else {
-               setError('Network error. Please try again later.'); // Błąd sieciowy
-           }
-       }
+        } catch (error) {
+          console.error('Login error:', error);
+          if (error.response && error.response.data) {
+            // Sprawdzamy odpowiedź serwera na błąd
+            const errorData = error.response.data;
+            if (errorData.detail) {
+              setError(errorData.detail); // Wyświetlamy szczegółowy błąd
+            } else {
+              setError('Nieprawidłowy email lub hasło'); // Domyślny komunikat
+            }
+          } else {
+            setError('Błąd sieci. Spróbuj ponownie później.'); // Błąd sieciowy
+          }
+        }
    };
 
    return (
@@ -61,7 +62,7 @@ const UserLogin = () => {
         <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg">
             <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Login</h2>
 
-            {error && <p className="text-red-600 text-center mb-4">{error}</p>}
+            <ErrorAlert error={error} onClose={() => setError(null)} />
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>

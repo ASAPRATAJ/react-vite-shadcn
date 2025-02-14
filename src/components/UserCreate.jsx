@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import ErrorAlert from './ErrorAlert'; // Import globalnego komponentu do wyświetlania błędów
 
 const UserCreate = () => {
   const [email, setEmail] = useState('');
@@ -10,7 +11,7 @@ const UserCreate = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Funkcja do pobierania wartości ciasteczka
+  // Funkcja do pobierania wartości ciasteczka CSRF
   function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -26,6 +27,7 @@ const UserCreate = () => {
     return cookieValue;
   }
 
+  // Obsługa przesyłania formularza
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
@@ -48,24 +50,35 @@ const UserCreate = () => {
         }
       );
 
-      setMessage('User created successfully!');
-      navigate('/login');
-    } catch (error) {
-      console.error('Registration error:', error);
-      if (error.response && error.response.data) {
-        const errorData = error.response.data;
+      setMessage('Użytkownik został pomyślnie utworzony!');
 
+      // Opcjonalnie przekieruj po kilku sekundach na stronę logowania
+      setTimeout(() => {
+        navigate('/login');
+      }, 3000); // Przekierowanie po 3 sekundach
+    } catch (err) {
+      console.error('Błąd rejestracji:', err);
+
+      // Obsługa szczegółowych błędów
+      if (err.response && err.response.data) {
+        const errorData = err.response.data;
+
+        // Wyświetl szczegółowe błędy (np. dla pola email lub password)
         if (errorData.email) {
-          setError(errorData.email.join(' '));
+          setError(`Email: ${errorData.email.join(' ')}`);
         } else if (errorData.password) {
-          setError(errorData.password.join(' '));
+          setError(`Hasło: ${errorData.password.join(' ')}`);
         } else if (errorData.detail) {
           setError(errorData.detail);
         } else {
-          setError('An error occurred. Please try again.');
+          setError('Wystąpił nieznany błąd. Spróbuj ponownie.');
         }
+      } else if (err.request) {
+        // Brak odpowiedzi od serwera
+        setError('Brak odpowiedzi od serwera. Spróbuj ponownie później.');
       } else {
-        setError('An error occurred. Please try again.');
+        // Inny błąd
+        setError(`Wystąpił błąd: ${err.message}`);
       }
     }
   };
@@ -73,14 +86,14 @@ const UserCreate = () => {
   return (
     <div className="w-screen flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-6 bg-white shadow-lg rounded-lg">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Register</h2>
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Rejestracja</h2>
 
+        {/* Globalny alert błędu */}
+        <ErrorAlert error={error} onClose={() => setError(null)} />
+
+        {/* Komunikat o sukcesie */}
         {message && (
           <p className="text-green-600 text-center mb-4">{message}</p>
-        )}
-
-        {error && (
-          <p className="text-red-600 text-center mb-4">{error}</p>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -101,7 +114,7 @@ const UserCreate = () => {
 
           <div>
             <label htmlFor="companyName" className="block text-gray-700 font-semibold">
-              Company Name:
+              Nazwa firmy:
             </label>
             <input
               id="companyName"
@@ -116,7 +129,7 @@ const UserCreate = () => {
 
           <div>
             <label htmlFor="password" className="block text-gray-700 font-semibold">
-              Password:
+              Hasło:
             </label>
             <input
               id="password"
@@ -133,7 +146,7 @@ const UserCreate = () => {
             type="submit"
             className="w-full px-4 py-2 text-white bg-gray-800 rounded-md hover:bg-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-300"
           >
-            Register
+            Zarejestruj się
           </button>
         </form>
       </div>

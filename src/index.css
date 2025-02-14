@@ -20,6 +20,25 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.product-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 350px; /* Stała wysokość dla całego kontenera produktu */
+}
+
+.product-description-container {
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Ograniczenie do 3 linii */
+  -webkit-box-orient: vertical;
+  overflow: hidden; /* Ukrycie nadmiarowego tekstu */
+  text-overflow: ellipsis; /* Dodanie "..." na końcu */
+}
+
+.product-description-container:hover {
+  text-decoration: underline; /* Podkreślenie na hover */
+}
+
 a {
   font-weight: 500;
   color: #646cff;

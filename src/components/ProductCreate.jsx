@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import ErrorAlert from './ErrorAlert'; // Import globalnego komponentu
 
 function ProductCreate() {
   const [title, setTitle] = useState('');
@@ -8,6 +9,7 @@ function ProductCreate() {
   const [image, setImage] = useState(null);
   const [tags, setTags] = useState([]); // Stan do przechowywania tagów
   const [selectedTags, setSelectedTags] = useState([]); // Stan do przechowywania wybranych tagów
+  const [newTagName, setNewTagName] = useState(''); // Stan dla nowego tagu
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
@@ -17,13 +19,24 @@ function ProductCreate() {
         const token = localStorage.getItem('token');
         const response = await axios.get('http://127.0.0.1:8000/api/products/tags/', {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         setTags(response.data); // Ustawiamy pobrane tagi w stanie
-      } catch (error) {
-        console.error('Error fetching tags:', error);
-        setError('There was an error fetching the tags.');
+      } catch (err) {
+        console.error('Error fetching tags:', err);
+
+        // Sprawdź, czy serwer zwrócił odpowiedź
+        if (err.response) {
+          // Wyświetl kod statusu i wiadomość z serwera
+          setError(`Wystąpił błąd (${err.response.status}): ${err.response.data.detail || 'Nieznany błąd.'}`);
+        } else if (err.request) {
+          // Błąd związany z żądaniem (brak odpowiedzi)
+          setError('Brak odpowiedzi od serwera. Spróbuj ponownie później.');
+        } else {
+          // Inny błąd (np. problem z konfiguracją Axiosa)
+          setError(`Wystąpił nieoczekiwany błąd: ${err.message}`);
+        }
       }
     };
 
@@ -36,9 +49,37 @@ function ProductCreate() {
 
   const handleTagChange = (tagId) => {
     if (selectedTags.includes(tagId)) {
-      setSelectedTags(selectedTags.filter(id => id !== tagId)); // Usuwamy tag, jeśli już jest wybrany
+      setSelectedTags(selectedTags.filter((id) => id !== tagId)); // Usuwamy tag, jeśli już jest wybrany
     } else {
       setSelectedTags([...selectedTags, tagId]); // Dodajemy tag do wybranych
+    }
+  };
+
+  const handleAddTag = async () => {
+    if (!newTagName.trim()) {
+      alert('Nazwa tagu nie może być pusta!');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post(
+        'http://127.0.0.1:8000/api/products/tags/create/',
+        { name: newTagName },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      // Dodaj nowo utworzony tag do listy dostępnych tagów
+      setTags([...tags, response.data]);
+      setNewTagName(''); // Resetuj pole nowego tagu
+    } catch (error) {
+      console.error('Error creating new tag:', error);
+      alert('Wystąpił błąd podczas tworzenia nowego tagu.');
     }
   };
 
@@ -56,41 +97,54 @@ function ProductCreate() {
     if (image) {
       formData.append('image', image);
     }
+
     // Dodajemy wybrane tagi do formData
-    selectedTags.forEach(tagId => {
+    selectedTags.forEach((tagId) => {
       formData.append('tags', tagId);
     });
 
-    axios.post(
-      'http://127.0.0.1:8000/api/products/create/',
-      formData,
-      {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    )
-    .then((response) => {
-      setMessage('Produkt został dodany pomyślnie!');
-      setTitle('');
-      setDescription('');
-      setPrice('');
-      setImage(null);
-      setSelectedTags([]);
-    })
-    .catch((error) => {
-      setError('There was an error creating the product!');
-    });
+    axios
+      .post(
+        'http://127.0.0.1:8000/api/products/create/',
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      )
+      .then((response) => {
+        setMessage('Produkt został dodany pomyślnie!');
+        setTitle('');
+        setDescription('');
+        setPrice('');
+        setImage(null);
+        setSelectedTags([]);
+      })
+      .catch((error) => {
+        console.error('Error creating product:', error);
+        setError('There was an error creating the product!');
+      });
   };
 
   return (
     <div className="w-screen flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-2xl flex items-center justify-center font-bold text-gray-800 mb-6">Dodaj produkt</h2>
+        <h2 className="text-2xl flex items-center justify-center font-bold text-gray-800 mb-6">
+          Dodaj produkt
+        </h2>
 
-        {message && <p className="flex items-center justify-center font-bold text-green-600 mb-4">{message}</p>}
-        {error && <p className="flex items-center justify-center font-bold text-red-600 mb-4">{error}</p>}
+        {message && (
+          <p className="flex items-center justify-center font-bold text-green-600 mb-4">
+            {message}
+          </p>
+        )}
+        {error && (
+          <p className="flex items-center justify-center font-bold text-red-600 mb-4">
+            {error}
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -136,11 +190,11 @@ function ProductCreate() {
             />
           </div>
 
-          {/* Wyświetlanie tagów do wyboru */}
+          {/* Wyświetlanie istniejących tagów */}
           <div>
-            <label className="block text-gray-700 font-medium mb-2">Tags:</label>
+            <label className="block text-gray-700 font-medium mb-2">Tagi:</label>
             <div className="space-y-2">
-              {tags.map(tag => (
+              {tags.map((tag) => (
                 <div key={tag.id}>
                   <label className="inline-flex items-center">
                     <input
@@ -156,11 +210,33 @@ function ProductCreate() {
             </div>
           </div>
 
+          {/* Dodawanie nowego tagu */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">Dodaj nowy tag:</label>
+            <div className="flex space-x-2">
+              <input
+                type="text"
+                value={newTagName}
+                onChange={(e) => setNewTagName(e.target.value)}
+                placeholder="Nazwa nowego tagu"
+                className="flex-grow px-3 py-2 border border-gray-300 bg-white rounded-lg focus:outline-none focus:border-blue-500"
+              />
+              <button
+                type="button"
+                onClick={handleAddTag}
+                className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-300"
+              >
+                Dodaj
+              </button>
+            </div>
+          </div>
+
+          {/* Przycisk dodawania produktu */}
           <button
             type="submit"
             className="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
           >
-            Create
+            Dodaj produkt
           </button>
         </form>
       </div>
