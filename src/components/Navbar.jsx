@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { FaBars, FaTimes, FaShoppingCart } from "react-icons/fa";
 import { FaFacebook, FaInstagram, FaTiktok } from "react-icons/fa";
-import { jwtDecode } from "jwt-decode"; // Do dekodowania tokenu JWT
+import { AuthContext } from './AuthContext'; // Importujemy AuthContext
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false); // Czy użytkownik jest adminem
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Czy użytkownik jest zalogowany
+  const { user, isAuthenticated, handleLogout } = useContext(AuthContext); // Używamy AuthContext
 
   // Obsługa scrollowania
   const { scrollY } = useScroll();
@@ -25,25 +24,6 @@ const Navbar = () => {
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
-
-  // Sprawdź token po zalogowaniu
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        setIsLoggedIn(true); // Użytkownik jest zalogowany
-        if (decodedToken.is_superuser && decodedToken.is_staff) {
-          setIsAdmin(true); // Użytkownik jest adminem
-        }
-      } catch (error) {
-        console.error("Błąd dekodowania tokenu:", error);
-      }
-    } else {
-      setIsLoggedIn(false); // Użytkownik nie jest zalogowany
-      setIsAdmin(false); // Resetuj flagę admina
-    }
-  }, []);
 
   return (
     <motion.nav
@@ -85,8 +65,8 @@ const Navbar = () => {
             </a>
           </div>
           {/* Linki w zależności od roli użytkownika */}
-          {isLoggedIn ? (
-            isAdmin ? (
+          {isAuthenticated ? (
+            user?.is_superuser && user?.is_staff ? (
               // Linki dla admina
               <div className="hidden md:flex space-x-6">
                 <Link
@@ -151,8 +131,8 @@ const Navbar = () => {
 
         {/* Prawa strona: Linki w zależności od roli użytkownika */}
         <div className="hidden md:flex space-x-6">
-          {isLoggedIn ? (
-            isAdmin ? (
+          {isAuthenticated ? (
+            user?.is_superuser && user?.is_staff ? (
               // Linki dla admina
               <>
                 <Link
@@ -170,6 +150,7 @@ const Navbar = () => {
                 <Link
                   to="/logout"
                   className="text-gray-800 hover:text-pink-500 transition duration-300"
+                  onClick={handleLogout}
                 >
                   Wyloguj
                 </Link>
@@ -192,6 +173,7 @@ const Navbar = () => {
                 <Link
                   to="/logout"
                   className="text-gray-800 hover:text-pink-500 transition duration-300"
+                  onClick={handleLogout}
                 >
                   Wyloguj
                 </Link>
@@ -234,8 +216,8 @@ const Navbar = () => {
           transition={{ duration: 0.3 }}
         >
           <div className="flex flex-col space-y-4 p-4">
-            {isLoggedIn ? (
-              isAdmin ? (
+            {isAuthenticated ? (
+              user?.is_superuser && user?.is_staff ? (
                 // Linki dla admina
                 <>
                   <Link
@@ -276,7 +258,7 @@ const Navbar = () => {
                   <Link
                     to="/logout"
                     className="text-gray-800 hover:text-pink-500 transition duration-300"
-                    onClick={closeMobileMenu}
+                    onClick={handleLogout}
                   >
                     Wyloguj
                   </Link>
@@ -308,7 +290,7 @@ const Navbar = () => {
                   <Link
                     to="/logout"
                     className="text-gray-800 hover:text-pink-500 transition duration-300"
-                    onClick={closeMobileMenu}
+                    onClick={handleLogout}
                   >
                     Wyloguj
                   </Link>

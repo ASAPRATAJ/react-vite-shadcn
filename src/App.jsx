@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { AuthProvider } from './components/AuthContext'; // Import AuthProvider
 import ProductCreate from './components/ProductCreate';
 import ProductList from './components/ProductList';
 import ProductListAdmin from './components/ProductListAdmin';
@@ -17,37 +18,36 @@ import OrderSummary from './components/OrderSummary'; // Import komponentu Order
 import Home from './components/Home';
 import EditProfile from './components/EditProfile';
 
-
-
 const App = () => {
   return (
     <Router>
-      <Navbar />
-      <div style={{ paddingTop: '60px' }}>
-        <Routes>
-          <Route path="/" element={<Home />} />
+      <AuthProvider> {/* Przeniesiono AuthProvider do wnętrza Router */}
+        <Navbar />
+        <div style={{ paddingTop: '60px' }}>
+          <Routes>
+            <Route path="/" element={<Home />} />
 
-          <Route path="/products/create" element={<ProductCreate />} />
-          <Route path="/products-admin" element={<ProductListAdmin />} />
-          <Route path="/products" element={<ProductList />} />
-          <Route path="/product-edit/:id" element={<ProductEdit />} />
+            <Route path="/products/create" element={<ProductCreate />} />
+            <Route path="/products-admin" element={<ProductListAdmin />} />
+            <Route path="/products" element={<ProductList />} />
+            <Route path="/product-edit/:id" element={<ProductEdit />} />
 
-          <Route path="/login" element={<UserLogin />} />
-          <Route path="/register" element={<UserCreate />} />
-          <Route path="/logout" element={<UserLogout />} />
+            <Route path="/login" element={<UserLogin />} />
+            <Route path="/register" element={<UserCreate />} />
+            <Route path="/logout" element={<UserLogout />} />
 
-          <Route path="/users" element={<UserList />} />
-          <Route path="/profile" element={<EditProfile />} />
-          <Route path="/users/orders" element={<UserOrderList />} />
+            <Route path="/users" element={<UserList />} />
+            <Route path="/profile" element={<EditProfile />} />
+            <Route path="/users/orders" element={<UserOrderList />} />
 
 {/*           <Route path="/orders/create" element={<OrderCreate />} /> */}
-          <Route path="/orders" element={<OrderList />} />
-          <Route path="/order-summary" element={<OrderSummary />} />
+            <Route path="/orders" element={<OrderList />} />
+            <Route path="/order-summary" element={<OrderSummary />} />
 
-          <Route path="/cart" element={<Cart />} />
-
-        </Routes>
-      </div>
+            <Route path="/cart" element={<Cart />} />
+          </Routes>
+        </div>
+      </AuthProvider>
     </Router>
   );
 };
