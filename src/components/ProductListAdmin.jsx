@@ -86,8 +86,9 @@ function ProductListAdmin() {
           {products.map((product) => (
             <div
               key={product.id}
-              className="border border-gray-300 rounded-lg p-4 hover:shadow-lg transition duration-300"
+              className="border border-gray-300 rounded-lg p-4 hover:shadow-lg transition duration-300 flex flex-col h-full"
             >
+             <div className="flex-grow">
               <img
                 src={product.image}
                 alt={product.title}
@@ -110,7 +111,7 @@ function ProductListAdmin() {
                   ))}
                 </div>
               )}
-
+            </div>
               {/* Wyświetlanie przycisku Edytuj produkt tylko dla admina */}
               {isAdmin && (
                 <button

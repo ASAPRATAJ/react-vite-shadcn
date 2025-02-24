@@ -97,11 +97,11 @@ const Cart = () => {
   }
 
   return (
-      <div className="p-6 bg-white w-screen mx-auto">
+      <div className="w-screen p-6 bg-white mx-auto">
         <div className="space-y-6">
           <h2 className="text-2xl font-bold text-center">Twój Koszyk</h2>
 
-          <div className="p-6 bg-pink-100 rounded-lg shadow-lg w-full">
+          <div className="p-6 bg-gray-100 rounded-lg shadow-lg ">
             {cart && cart.items.length === 0 ? (
               <p className="text-center">Twój koszyk jest pusty.</p>
             ) : (
@@ -133,7 +133,7 @@ const Cart = () => {
 
           {cart && cart.items.length > 0 && (
             <>
-              <div className="p-6 bg-pink-100 rounded-lg shadow-md w-full">
+              <div className="p-6 bg-gray-100 rounded-lg shadow-md w-full">
                 <h4 className="text-xl font-semibold">Grand Total: {cart.items.reduce((total, item) => total + quantities[item.product.id] * item.product.price, 0)} zł</h4>
                 <button onClick={handleUpdateCart} className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition">
                   Przejdź do podsumowania

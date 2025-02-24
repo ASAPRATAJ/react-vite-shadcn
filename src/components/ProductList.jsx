@@ -166,20 +166,20 @@ function ProductList() {
                 alt={product.title}
                 className="w-full h-48 object-cover rounded-md mb-4"
               />
-              <h3 className="text-xl font-semibold mb-2">{product.title}</h3>
+              <h3 className="flex justify-center text-xl font-semibold mb-2">{product.title}</h3>
               <div
                 className="product-description-container cursor-pointer"
                 onClick={() => alert(product.description)} // Wyświetlenie pełnego opisu w oknie alertu
               >
-                <p className="text-gray-600 mb-2">
+                <p className="flex justify-center text-gray-600 mb-2">
                   {product.description}
                 </p>
               </div>
-              <p className="text-lg font-bold mb-2">{product.price} zł/kg</p>
+              <p className="flex justify-center text-lg font-bold mb-2">{product.price} zł/kg</p>
 
               {/* Wyświetlanie tagów */}
               {product.tags && product.tags.length > 0 && (
-                <div className="flex flex-wrap space-x-2 mt-2">
+                <div className="flex justify-center space-x-2 mt-2">
                   {product.tags.map((tagId) => (
                     <span
                       key={tagId}
@@ -192,7 +192,7 @@ function ProductList() {
               )}
 
               {/* Kontrolki ilości */}
-              <div className="flex items-center mt-4">
+              <div className="flex justify-center mt-4">
                 <button
                   onClick={() => decreaseQuantity(product.id)}
                   className="px-2 py-1 bg-gray-300 rounded-md hover:bg-gray-400 transition duration-300"
@@ -209,11 +209,16 @@ function ProductList() {
               </div>
 
               <button
-                onClick={() => addToCart(product.id, quantities[product.id] || 0)}
-                className="mt-4 w-full py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300"
-              >
-                Add to Cart
-              </button>
+                  onClick={() => addToCart(product.id, quantities[product.id] || 0)}
+                  disabled={!quantities[product.id] || quantities[product.id] <= 0}
+                  className={`mt-4 w-full py-2 rounded-md transition duration-300 ${
+                    !quantities[product.id] || quantities[product.id] <= 0
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-blue-500 hover:bg-blue-600 text-white'
+                  }`}
+                >
+                  Add to Cart
+                </button>
             </div>
           ))}
         </div>
