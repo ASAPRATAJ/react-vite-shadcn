@@ -17,7 +17,7 @@ function ProductCreate() {
     const fetchTags = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://127.0.0.1:8000/api/products/tags/', {
+        const response = await axios.get('https://ordermanagement-production-0b45.up.railway.app:8080/api/products/tags/', {
           headers: {
             Authorization: `Bearer ${token}`,
           },

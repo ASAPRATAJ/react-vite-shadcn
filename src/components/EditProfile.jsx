@@ -20,7 +20,7 @@ const EditProfile = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/users/profile/', {
+        const response = await axios.get('https://ordermanagement-production-0b45.up.railway.app:8080/api/users/profile/', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
@@ -38,7 +38,7 @@ const EditProfile = () => {
   const handleUpdateProfile = async () => {
     try {
       await axios.patch(
-        'http://127.0.0.1:8000/api/users/profile/',
+        'https://ordermanagement-production-0b45.up.railway.app:8080/api/users/profile/',
         {
           invoice_name: profileData.invoice_name,
           nip: profileData.nip,
@@ -66,7 +66,7 @@ const EditProfile = () => {
 
     try {
       await axios.patch(
-        'http://127.0.0.1:8000/api/users/change-email/',
+        'https://ordermanagement-production-0b45.up.railway.app:8080/api/users/change-email/',
         { email: newEmail },
         {
           headers: {
@@ -91,7 +91,7 @@ const EditProfile = () => {
 
     try {
       await axios.patch(
-        'http://127.0.0.1:8000/api/users/change-password/',
+        'https://ordermanagement-production-0b45.up.railway.app:8080/api/users/change-password/',
         { old_password: oldPassword, new_password: newPassword },
         {
           headers: {

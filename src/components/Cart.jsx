@@ -16,7 +16,7 @@ const Cart = () => {
 
     const fetchCart = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/cart/', {
+        const response = await axios.get('https://ordermanagement-production-0b45.up.railway.app:8080/api/cart/', {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -50,7 +50,7 @@ const Cart = () => {
       for (const item of cart.items) {
         if (quantities[item.product.id] !== item.quantity) {
           await axios.patch(
-            `http://127.0.0.1:8000/api/cart/items/${item.id}/`,
+            `https://ordermanagement-production-0b45.up.railway.app:8080/api/cart/items/${item.id}/`,
             { quantity: quantities[item.product.id] },
             { headers: { Authorization: `Bearer ${token}` } }
           );
@@ -70,7 +70,7 @@ const Cart = () => {
         `http://127.0.0.1:8000/api/cart/items/${itemId}/delete/`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      const response = await axios.get('http://127.0.0.1:8000/api/cart/', {
+      const response = await axios.get('https://ordermanagement-production-0b45.up.railway.app:8080/api/cart/', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCart(response.data);

@@ -102,7 +102,7 @@ function ProductEdit() {
 
     try {
       await axios.put(
-        `http://127.0.0.1:8000/api/products/${id}/update/`,
+        `https://ordermanagement-production-0b45.up.railway.app:8080/api/products/${id}/update/`,
         formData,
         {
           headers: {
@@ -126,7 +126,7 @@ function ProductEdit() {
   const handleDelete = async () => {
     const token = localStorage.getItem('token');
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/products/${id}/delete/`, {
+      await axios.delete(`https://ordermanagement-production-0b45.up.railway.app:8080/api/products/${id}/delete/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

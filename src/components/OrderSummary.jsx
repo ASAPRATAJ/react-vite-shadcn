@@ -31,7 +31,7 @@ const OrderSummary = () => {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/cart/create-order/",
+        "https://ordermanagement-production-0b45.up.railway.app:8080/api/cart/create-order/",
         {
           products: cart.items.map((item) => ({
             product_id: item.product.id,
