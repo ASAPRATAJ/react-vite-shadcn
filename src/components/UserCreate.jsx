@@ -37,7 +37,7 @@ const UserCreate = () => {
 
     try {
       await axios.post(
-        'https://ordermanagement-production-0b45.up.railway.app:8080/api/users/create/',
+        'https://ordermanagement-production-0b45.up.railway.app/api/users/create/',
         {
           email,
           company_name: companyName,
