@@ -24,14 +24,14 @@ function ProductListAdmin() {
     const fetchProductsAndTags = async () => {
       try {
         // Pobieranie produktów
-        const productsResponse = await axios.get('http://127.0.0.1:8000/api/products/', {
+        const productsResponse = await axios.get('https://ordermanagement-production-0b45.up.railway.app:8080/api/products/', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
         // Pobieranie tagów
-        const tagsResponse = await axios.get('http://127.0.0.1:8000/api/products/tags/', {
+        const tagsResponse = await axios.get('https://ordermanagement-production-0b45.up.railway.app:8080/api/products/tags/', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
