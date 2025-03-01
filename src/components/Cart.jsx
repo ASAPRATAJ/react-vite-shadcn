@@ -67,7 +67,7 @@ const Cart = () => {
     const token = localStorage.getItem('token');
     try {
       await axios.delete(
-        `http://127.0.0.1:8000/api/cart/items/${itemId}/delete/`,
+        `https://ordermanagement-production-0b45.up.railway.app/api/cart/items/${itemId}/delete/`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const response = await axios.get('https://ordermanagement-production-0b45.up.railway.app/api/cart/', {

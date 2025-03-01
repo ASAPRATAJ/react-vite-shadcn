@@ -86,7 +86,7 @@ function ProductList() {
 
     try {
       await axios.post(
-        'https://ordermanagement-production-0b45.up.railway.app:8080/api/cart/items/',
+        'https://ordermanagement-production-0b45.up.railway.app/api/cart/items/',
         { product_id: productId, quantity: quantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
