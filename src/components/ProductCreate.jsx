@@ -105,7 +105,7 @@ function ProductCreate() {
 
     axios
       .post(
-        'https://https://ordermanagement-production-0b45.up.railway.app/api/products/create/',
+        'https://ordermanagement-production-0b45.up.railway.app/api/products/create/',
         formData,
         {
           headers: {
