@@ -14,7 +14,7 @@ const UserList = () => {
       }
 
       try {
-        const response = await axios.get('https://ordermanagement-production-0b45.up.railway.app:8080/api/users/', {
+        const response = await axios.get('https://ordermanagement-production-0b45.up.railway.app/api/users/', {
           headers: {
             Authorization: `Bearer ${token}`,
           },

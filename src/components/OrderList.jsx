@@ -12,7 +12,7 @@ const OrderList = () => {
 
     const fetchOrders = async () => {
       try {
-        const response = await axios.get('https://ordermanagement-production-0b45.up.railway.app:8080/api/orders/', {
+        const response = await axios.get('https://ordermanagement-production-0b45.up.railway.app/api/orders/', {
           headers: {
             Authorization: `Bearer ${token}`, // Dodajemy token w nagłówkach
           },

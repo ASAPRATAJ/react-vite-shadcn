@@ -35,13 +35,13 @@ function ProductList() {
 
     const fetchProductsAndTags = async () => {
       try {
-        const productsResponse = await axios.get('https://ordermanagement-production-0b45.up.railway.app:8080/api/products/', {
+        const productsResponse = await axios.get('https://ordermanagement-production-0b45.up.railway.app/api/products/', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        const tagsResponse = await axios.get('https://ordermanagement-production-0b45.up.railway.app:8080/api/products/tags/', {
+        const tagsResponse = await axios.get('https://ordermanagement-production-0b45.up.railway.app/api/products/tags/', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
