@@ -22,7 +22,7 @@ function ProductEdit() {
       const token = localStorage.getItem('token');
       try {
         // Pobierz dane pojedynczego produktu na podstawie ID
-        const response = await axios.get(`http://127.0.0.1:8000/api/products/${id}/`, {
+        const response = await axios.get(`https://ordermanagement-production-0b45.up.railway.app/api/products/${id}/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -44,7 +44,7 @@ function ProductEdit() {
       const token = localStorage.getItem('token');
       try {
         // Pobierz wszystkie dostępne tagi
-        const response = await axios.get('http://127.0.0.1:8000/api/products/tags/', {
+        const response = await axios.get('https://ordermanagement-production-0b45.up.railway.app/api/products/tags/', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
