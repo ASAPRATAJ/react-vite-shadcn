@@ -45,7 +45,7 @@ const Navbar = () => {
               rel="noopener noreferrer"
               className="text-gray-800 hover:text-pink-500 transition duration-300"
             >
-              <FaFacebook size={20} />
+              <FaFacebook size={14} />
             </a>
             <a
               href="https://instagram.com/polishlody"
@@ -53,7 +53,7 @@ const Navbar = () => {
               rel="noopener noreferrer"
               className="text-gray-800 hover:text-pink-500 transition duration-300"
             >
-              <FaInstagram size={20} />
+              <FaInstagram size={14} />
             </a>
             <a
               href="https://tiktok.com/@polishlodywroclaw"
@@ -61,7 +61,7 @@ const Navbar = () => {
               rel="noopener noreferrer"
               className="text-gray-800 hover:text-pink-500 transition duration-300"
             >
-              <FaTiktok size={20} />
+              <FaTiktok size={14} />
             </a>
           </div>
           {/* Linki w zależności od roli użytkownika */}

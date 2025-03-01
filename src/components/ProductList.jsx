@@ -13,7 +13,8 @@ function ProductList() {
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(''); // Przechowuje komunikaty o sukcesie
   const [quantities, setQuantities] = useState({});
-
+  // Dodaj nowy stan dla animacji
+  const [addedProducts, setAddedProducts] = useState({});
   useEffect(() => {
     const token = localStorage.getItem('token');
 
@@ -80,6 +81,8 @@ function ProductList() {
     }
   };
 
+
+
   // Funkcja do dodawania produktu do koszyka
   const addToCart = async (productId, quantity) => {
     const token = localStorage.getItem('token');
@@ -87,10 +90,34 @@ function ProductList() {
     try {
       await axios.post(
         'https://ordermanagement-production-0b45.up.railway.app/api/cart/items/',
-        { product_id: productId, quantity: quantity },
+        { product_id: productId, quantity: quantity},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setMessage('Produkt został pomyślnie dodany do koszyka!'); // Komunikat o sukcesie
+
+          // Znajdź produkt w tablicy produktów
+      const product = products.find(p => p.id === productId);
+      const productName = product ? product.title : 'nieznany';
+
+      setQuantities((prev) => ({
+        ...prev,
+        [productId]: 4
+      }));
+
+      // Ustawienie flagi animacji dla tego produktu
+      setAddedProducts((prev) => ({
+        ...prev,
+        [productId]: true
+      }));
+
+      // Usunięcie flagi animacji po 1 sekundzie
+      setTimeout(() => {
+        setAddedProducts((prev) => ({
+          ...prev,
+          [productId]: false
+        }));
+      }, 1500);
+
+      setMessage(`${quantity} kg produktu "${productName}" zostało pomyślnie dodane do koszyka!`); // Komunikat o sukcesie
     } catch (error) {
       console.error('Błąd podczas dodawania produktu do koszyka:', error);
       setError('Nie udało się dodać produktu do koszyka.'); // Komunikat o błędzie
@@ -101,14 +128,14 @@ function ProductList() {
   const increaseQuantity = (productId) => {
     setQuantities((prev) => ({
       ...prev,
-      [productId]: (prev[productId] || 0) + 1,
+      [productId]: (prev[productId] || 4) + 1,
     }));
   };
 
   const decreaseQuantity = (productId) => {
     setQuantities((prev) => {
-      const currentQuantity = prev[productId] || 0;
-      if (currentQuantity > 0) {
+      const currentQuantity = prev[productId] || 4;
+      if (currentQuantity > 4) {
         return { ...prev, [productId]: currentQuantity - 1 };
       }
       return prev;
@@ -199,7 +226,8 @@ function ProductList() {
                 >
                   -
                 </button>
-                <span className="mx-2">{quantities[product.id] || 0}</span>
+                <span className="mx-2">{quantities[product.id] || 4}</span>
+                <span className="mx-2"> kg </span>
                 <button
                   onClick={() => increaseQuantity(product.id)}
                   className="px-2 py-1 bg-gray-300 rounded-md hover:bg-gray-400 transition duration-300"
@@ -209,16 +237,13 @@ function ProductList() {
               </div>
 
               <button
-                  onClick={() => addToCart(product.id, quantities[product.id] || 0)}
-                  disabled={!quantities[product.id] || quantities[product.id] <= 0}
-                  className={`mt-4 w-full py-2 rounded-md transition duration-300 ${
-                    !quantities[product.id] || quantities[product.id] <= 0
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-blue-500 hover:bg-blue-600 text-white'
-                  }`}
-                >
-                  Add to Cart
-                </button>
+                onClick={() => addToCart(product.id, quantities[product.id] || 4)}
+                className={`mt-4 w-full py-2 rounded-md transition duration-300
+                  ${addedProducts[product.id] ? 'bg-green-500' : 'bg-blue-500 hover:bg-blue-600'}
+                  text-white`}
+              >
+                {addedProducts[product.id] ? 'Dodano!' : 'Dodaj do koszyka'}
+              </button>
             </div>
           ))}
         </div>
