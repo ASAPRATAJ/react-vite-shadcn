@@ -48,7 +48,7 @@ const Navbar = () => {
               <FaFacebook size={20} />
             </a>
             <a
-              href="https://instagram.com"
+              href="https://instagram.com/polishlody"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-800 hover:text-pink-500 transition duration-300"
@@ -56,7 +56,7 @@ const Navbar = () => {
               <FaInstagram size={20} />
             </a>
             <a
-              href="https://tiktok.com"
+              href="https://tiktok.com/@polishlodywroclaw"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-800 hover:text-pink-500 transition duration-300"
@@ -274,7 +274,7 @@ const Navbar = () => {
                     Produkty
                   </Link>
                   <Link
-                    to="/my-orders"
+                    to="/users/orders"
                     className="text-gray-800 hover:text-pink-500 transition duration-300"
                     onClick={closeMobileMenu}
                   >
@@ -286,6 +286,13 @@ const Navbar = () => {
                     onClick={closeMobileMenu}
                   >
                     <FaShoppingCart className="mr-2" /> Koszyk
+                  </Link>
+                  <Link
+                    to="/profile"
+                    className="text-gray-800 hover:text-pink-500 transition duration-300 flex items-center"
+                    onClick={closeMobileMenu}
+                  >
+                    Mój profil
                   </Link>
                   <Link
                     to="/logout"

@@ -17,6 +17,9 @@ import Cart from './components/Cart'; // Import komponentu Cart
 import OrderSummary from './components/OrderSummary'; // Import komponentu OrderSummary
 import Home from './components/Home';
 import EditProfile from './components/EditProfile';
+import ConditionalRedirect from './components/ConditionalRedirect';
+import About from './components/About';
+import Contact from './components/Contact';
 
 const App = () => {
   return (
@@ -26,6 +29,11 @@ const App = () => {
         <div style={{ paddingTop: '60px' }}>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+
+            {/* Nowe trasy do warunkowego przekierowania */}
+            <Route path="/redirect-to-products" element={<ConditionalRedirect to="/products" />} />
 
             <Route path="/products/create" element={<ProductCreate />} />
             <Route path="/products-admin" element={<ProductListAdmin />} />

@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
-import ErrorAlert from './ErrorAlert'; // Import globalnego komponentu do wyświetlania błędów
+import ErrorAlert from './ErrorAlert';
 
 const UserLogin = () => {
    const [email, setEmail] = useState('');
    const [password, setPassword] = useState('');
    const [error, setError] = useState('');
    const navigate = useNavigate();
+   const location = useLocation();
+
+   // Pobierz parametr redirect z URL
+   const params = new URLSearchParams(location.search);
+   const redirectUrl = params.get('redirect') || '/';
 
    const handleSubmit = async (e) => {
        e.preventDefault();
@@ -35,8 +40,8 @@ const UserLogin = () => {
                isSuperUser: decodedToken.is_superuser,
            }));
 
-           // Przekierowanie na stronę główną po zalogowaniu
-           navigate('/');
+           // Przekierowanie na stronę zapisaną w parametrze redirect
+           navigate(redirectUrl);
 
            // Odświeżenie strony po zalogowaniu
            window.location.reload();
@@ -61,6 +66,12 @@ const UserLogin = () => {
     <div className="flex items-center justify-center min-h-screen bg-gray-100 w-screen">
         <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg">
             <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Login</h2>
+
+            {redirectUrl !== '/' && (
+              <p className="text-center text-gray-600 mb-4">
+                Zaloguj się, aby kontynuować
+              </p>
+            )}
 
             <ErrorAlert error={error} onClose={() => setError(null)} />
 
@@ -98,8 +109,6 @@ const UserLogin = () => {
             </form>
         </div>
     </div>
-
-
    );
 };
 

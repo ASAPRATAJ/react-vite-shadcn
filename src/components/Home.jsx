@@ -14,7 +14,7 @@ const Home = () => {
           <div className="relative text-center text-white">
             <h1 className="text-6xl font-bold mb-6">Polish Lody</h1>
             <p className="text-2xl mb-8">Najlepsze lody dla Twojego biznesu</p>
-            <Link to="/products" className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-6 rounded-full shadow-md transition">
+            <Link to="/redirect-to-products" className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-6 rounded-full shadow-md transition">
               Zamów teraz
             </Link>
           </div>
@@ -42,15 +42,19 @@ const Home = () => {
               <div className="bg-white p-6 rounded-lg shadow-lg w-full">
                 <img src={iceCream2} alt="Ice Cream" className="rounded-lg mb-4 w-full" />
                 <h3 className="text-2xl font-bold text-gray-800 mb-2">Lody na kilogramy</h3>
-                <p className="text-gray-600">Klasyczne lody na patyku w różnych smakach.</p>
+                <p className="text-gray-600">Klasyczne lody na kilogramy w różnych smakach.</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-lg w-full">
-                <img src={iceCream2} alt="Ice Cream" className="rounded-lg mb-4 w-full" />
+                <a href="https://polishlody.com/torty-lodowe/" target="_blank" rel="noopener noreferrer">
+                    <img src={iceCream2} alt="Ice Cream" className="rounded-lg mb-4 w-full" />
+                </a>
                 <h3 className="text-2xl font-bold text-gray-800 mb-2">Torty lodowe</h3>
                 <p className="text-gray-600">Klasyczne lody zamienione w torty w różnych smakach.</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-lg w-full">
-                <img src={iceCream2} alt="Ice Cream" className="rounded-lg mb-4 w-full" />
+                <a href="https://polishlody.com/bites/" target="_blank" rel="noopener noreferrer">
+                    <img src={iceCream2} alt="Ice Cream" className="rounded-lg mb-4 w-full" />
+                </a>
                 <h3 className="text-2xl font-bold text-gray-800 mb-2">Praliny lodowe</h3>
                 <p className="text-gray-600">Klasyczne lody zamienione w praliny w różnych smakach.</p>
               </div>
