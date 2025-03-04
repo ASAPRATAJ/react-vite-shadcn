@@ -23,7 +23,7 @@ const UserLogin = () => {
            // Konwertuj email na małe litery przed wysłaniem do API
            const normalizedEmail = email.toLowerCase();
 
-           const response = await axios.post('https://ordermanagement-production-0b45.up.railway.app/api/users/token/create/', {
+           const response = await axios.post('https://ordermanagement-production-0b45.up.railway.app/api/users/login/', {
                email: normalizedEmail, // Używamy znormalizowanego emaila
                password
            });
