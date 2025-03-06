@@ -59,7 +59,7 @@ function ProductCreate() {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/products/tags/create/",
+        "https://ordermanagement-production-0b45.up.railway.app/api/products/tags/create/",
         { name: newTagName },
         {
           headers: {
