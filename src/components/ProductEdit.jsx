@@ -20,7 +20,7 @@ function ProductEdit() {
     const fetchProduct = async () => {
       const token = localStorage.getItem("token");
       try {
-        const response = await axios.get("https://ordermanagement-production-0b45.up.railway.app/api/products/${id}/", {
+        const response = await axios.get(`https://ordermanagement-production-0b45.up.railway.app/api/products/${id}/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -40,7 +40,7 @@ function ProductEdit() {
     const fetchTags = async () => {
       const token = localStorage.getItem("token");
       try {
-        const response = await axios.get("https://ordermanagement-production-0b45.up.railway.app/api/products/tags/", {
+        const response = await axios.get(`https://ordermanagement-production-0b45.up.railway.app/api/products/tags/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -92,7 +92,7 @@ function ProductEdit() {
     });
 
     try {
-      await axios.put("https://ordermanagement-production-0b45.up.railway.app/api/products/${id}/update/", formData, {
+      await axios.put(`https://ordermanagement-production-0b45.up.railway.app/api/products/${id}/update/`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -108,7 +108,7 @@ function ProductEdit() {
   const handleDelete = async () => {
     const token = localStorage.getItem("token");
     try {
-      await axios.delete("https://ordermanagement-production-0b45.up.railway.app/api/products/${id}/delete/", {
+      await axios.delete(`https://ordermanagement-production-0b45.up.railway.app/api/products/${id}/delete/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
