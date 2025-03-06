@@ -1,40 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import ErrorAlert from './ErrorAlert'; // Import globalnego komponentu
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import ErrorAlert from "./ErrorAlert";
 
 function ProductCreate() {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('');
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
   const [image, setImage] = useState(null);
-  const [tags, setTags] = useState([]); // Stan do przechowywania tagów
-  const [selectedTags, setSelectedTags] = useState([]); // Stan do przechowywania wybranych tagów
-  const [newTagName, setNewTagName] = useState(''); // Stan dla nowego tagu
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [tags, setTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [newTagName, setNewTagName] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchTags = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('https://ordermanagement-production-0b45.up.railway.app/api/products/tags/', {
+        const token = localStorage.getItem("token");
+        const response = await axios.get("https://ordermanagement-production-0b45.up.railway.app/api/products/tags/", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        setTags(response.data); // Ustawiamy pobrane tagi w stanie
+        setTags(response.data);
       } catch (err) {
-        console.error('Error fetching tags:', err);
-
-        // Sprawdź, czy serwer zwrócił odpowiedź
+        console.error("Error fetching tags:", err);
         if (err.response) {
-          // Wyświetl kod statusu i wiadomość z serwera
-          setError(`Wystąpił błąd (${err.response.status}): ${err.response.data.detail || 'Nieznany błąd.'}`);
+          setError(`Wystąpił błąd (${err.response.status}): ${err.response.data.detail || "Nieznany błąd."}`);
         } else if (err.request) {
-          // Błąd związany z żądaniem (brak odpowiedzi)
-          setError('Brak odpowiedzi od serwera. Spróbuj ponownie później.');
+          setError("Brak odpowiedzi od serwera. Spróbuj ponownie później.");
         } else {
-          // Inny błąd (np. problem z konfiguracją Axiosa)
           setError(`Wystąpił nieoczekiwany błąd: ${err.message}`);
         }
       }
@@ -49,103 +44,87 @@ function ProductCreate() {
 
   const handleTagChange = (tagId) => {
     if (selectedTags.includes(tagId)) {
-      setSelectedTags(selectedTags.filter((id) => id !== tagId)); // Usuwamy tag, jeśli już jest wybrany
+      setSelectedTags(selectedTags.filter((id) => id !== tagId));
     } else {
-      setSelectedTags([...selectedTags, tagId]); // Dodajemy tag do wybranych
+      setSelectedTags([...selectedTags, tagId]);
     }
   };
 
   const handleAddTag = async () => {
     if (!newTagName.trim()) {
-      alert('Nazwa tagu nie może być pusta!');
+      alert("Nazwa tagu nie może być pusta!");
       return;
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const response = await axios.post(
-        'https://ordermanagement-production-0b45.up.railway.app/api/products/tags/create/',
+        "http://127.0.0.1:8000/api/products/tags/create/",
         { name: newTagName },
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
-
-      // Dodaj nowo utworzony tag do listy dostępnych tagów
       setTags([...tags, response.data]);
-      setNewTagName(''); // Resetuj pole nowego tagu
+      setNewTagName("");
     } catch (error) {
-      console.error('Error creating new tag:', error);
-      alert('Wystąpił błąd podczas tworzenia nowego tagu.');
+      console.error("Error creating new tag:", error);
+      alert("Wystąpił błąd podczas tworzenia nowego tagu.");
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setMessage('');
-    setError('');
+    setMessage("");
+    setError("");
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
 
     const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('price', price);
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("price", price);
     if (image) {
-      formData.append('image', image);
+      formData.append("image", image);
     }
-
-    // Dodajemy wybrane tagi do formData
     selectedTags.forEach((tagId) => {
-      formData.append('tags', tagId);
+      formData.append("tag_ids", tagId); // Zmieniono z 'tags' na 'tag_ids'
     });
 
     axios
-      .post(
-        'https://ordermanagement-production-0b45.up.railway.app/api/products/create/',
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      )
+      .post("https://ordermanagement-production-0b45.up.railway.app/api/products/create/", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      })
       .then((response) => {
-        setMessage('Produkt został dodany pomyślnie!');
-        setTitle('');
-        setDescription('');
-        setPrice('');
+        setMessage("Produkt został dodany pomyślnie!");
+        setTitle("");
+        setDescription("");
+        setPrice("");
         setImage(null);
         setSelectedTags([]);
       })
       .catch((error) => {
-        console.error('Error creating product:', error);
-        setError('There was an error creating the product!');
+        console.error("Error creating product:", error);
+        setError("There was an error creating the product!");
       });
   };
 
   return (
     <div className="w-screen flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-2xl flex items-center justify-center font-bold text-gray-800 mb-6">
-          Dodaj produkt
-        </h2>
-
+        <h2 className="text-2xl flex items-center justify-center font-bold text-gray-800 mb-6">Dodaj produkt</h2>
         {message && (
-          <p className="flex items-center justify-center font-bold text-green-600 mb-4">
-            {message}
-          </p>
+          <p className="flex items-center justify-center font-bold text-green-600 mb-4">{message}</p>
         )}
         {error && (
-          <p className="flex items-center justify-center font-bold text-red-600 mb-4">
-            {error}
-          </p>
+          <p className="flex items-center justify-center font-bold text-red-600 mb-4">{error}</p>
         )}
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-gray-700 font-medium mb-2">Nazwa:</label>
@@ -157,7 +136,6 @@ function ProductCreate() {
               required
             />
           </div>
-
           <div>
             <label className="block text-gray-700 font-medium mb-2">Opis:</label>
             <input
@@ -168,7 +146,6 @@ function ProductCreate() {
               required
             />
           </div>
-
           <div>
             <label className="block text-gray-700 font-medium mb-2">Cena:</label>
             <input
@@ -179,7 +156,6 @@ function ProductCreate() {
               required
             />
           </div>
-
           <div>
             <label className="block text-gray-700 font-medium mb-2">Zdjęcie produktu:</label>
             <input
@@ -189,8 +165,6 @@ function ProductCreate() {
               accept="image/*"
             />
           </div>
-
-          {/* Wyświetlanie istniejących tagów */}
           <div>
             <label className="block text-gray-700 font-medium mb-2">Tagi:</label>
             <div className="space-y-2">
@@ -209,8 +183,6 @@ function ProductCreate() {
               ))}
             </div>
           </div>
-
-          {/* Dodawanie nowego tagu */}
           <div>
             <label className="block text-gray-700 font-medium mb-2">Dodaj nowy tag:</label>
             <div className="flex space-x-2">
@@ -230,8 +202,6 @@ function ProductCreate() {
               </button>
             </div>
           </div>
-
-          {/* Przycisk dodawania produktu */}
           <button
             type="submit"
             className="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"

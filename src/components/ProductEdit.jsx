@@ -1,58 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
 
 function ProductEdit() {
-  const { id } = useParams(); // Pobierz ID produktu z parametrów URL
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('');
-  const [image, setImage] = useState(null); // Stan do przechowywania obiektu pliku dla obrazu
-  const [tags, setTags] = useState([]); // Stan do przechowywania tagów
-  const [selectedTags, setSelectedTags] = useState([]); // Stan do przechowywania wybranych tagów
-  const [isActive, setIsActive] = useState(false); // Stan do przechowywania statusu is_active
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const { id } = useParams();
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [image, setImage] = useState(null);
+  const [tags, setTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [isActive, setIsActive] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
-  const navigate = useNavigate(); // Użyj useNavigate do przekierowania
+  const navigate = useNavigate();
 
-  // Pobranie danych produktu i tagów
   useEffect(() => {
     const fetchProduct = async () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       try {
-        // Pobierz dane pojedynczego produktu na podstawie ID
-        const response = await axios.get(`https://ordermanagement-production-0b45.up.railway.app/api/products/${id}/`, {
+        const response = await axios.get("https://ordermanagement-production-0b45.up.railway.app/api/products/${id}/", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
         const { title, description, price, tags, is_active } = response.data;
         setTitle(title);
         setDescription(description);
         setPrice(price);
-        setSelectedTags(tags); // Ustaw tagi na podstawie odpowiedzi API
-        setIsActive(is_active); // Ustaw wartość isActive na podstawie odpowiedzi API
+        setSelectedTags(tags.map((tag) => tag.id));
+        setIsActive(is_active);
       } catch (error) {
-        setError('Wystąpił błąd podczas pobierania produktu!');
-        console.error('Błąd podczas pobierania produktu:', error);
+        setError("Wystąpił błąd podczas pobierania produktu!");
+        console.error("Błąd podczas pobierania produktu:", error);
       }
     };
 
     const fetchTags = async () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       try {
-        // Pobierz wszystkie dostępne tagi
-        const response = await axios.get('https://ordermanagement-production-0b45.up.railway.app/api/products/tags/', {
+        const response = await axios.get("https://ordermanagement-production-0b45.up.railway.app/api/products/tags/", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        setTags(response.data); // Ustaw pobrane tagi w stanie
+        setTags(response.data);
       } catch (error) {
-        setError('Wystąpił błąd podczas pobierania tagów.');
-        console.error('Błąd podczas pobierania tagów:', error);
+        setError("Wystąpił błąd podczas pobierania tagów.");
+        console.error("Błąd podczas pobierania tagów:", error);
       }
     };
 
@@ -60,85 +56,68 @@ function ProductEdit() {
     fetchTags();
   }, [id]);
 
-  // Obsługa zmiany obrazu
   const handleImageChange = (e) => {
     if (e.target.files.length > 0) {
-      setImage(e.target.files[0]); // Przechowuj obiekt pliku
+      setImage(e.target.files[0]);
     } else {
-      setImage(null); // Resetuj, jeśli nie wybrano pliku
+      setImage(null);
     }
   };
 
-  // Obsługa zmiany tagów
   const handleTagChange = (tagId) => {
     if (selectedTags.includes(tagId)) {
-      setSelectedTags(selectedTags.filter((id) => id !== tagId)); // Usuń tag, jeśli jest już wybrany
+      setSelectedTags(selectedTags.filter((id) => id !== tagId));
     } else {
-      setSelectedTags([...selectedTags, tagId]); // Dodaj tag do wybranych
+      setSelectedTags([...selectedTags, tagId]);
     }
   };
 
-  // Obsługa przesyłania formularza
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage('');
-    setError('');
+    setMessage("");
+    setError("");
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
 
     const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('price', price);
-    formData.append('is_active', isActive); // Dodaj status is_active do FormData
-
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("price", price);
+    formData.append("is_active", isActive);
     if (image) {
-      formData.append('image', image);
+      formData.append("image", image);
     }
-
     selectedTags.forEach((tagId) => {
-      formData.append('tags', tagId);
+      formData.append("tag_ids", tagId); // Zmieniono z 'tags' na 'tag_ids'
     });
 
     try {
-      await axios.put(
-        `https://ordermanagement-production-0b45.up.railway.app/api/products/${id}/update/`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      setMessage('Produkt został zaktualizowany pomyślnie!');
-      navigate('/products-admin'); // Przekieruj po pomyślnej aktualizacji
-    } catch (error) {
-      console.error(
-        'Błąd podczas aktualizacji produktu:',
-        error.response ? error.response.data : error.message
-      );
-      setError('Wystąpił błąd podczas aktualizacji produktu!');
-    }
-  };
-
-  // Obsługa usuwania produktu
-  const handleDelete = async () => {
-    const token = localStorage.getItem('token');
-    try {
-      await axios.delete(`https://ordermanagement-production-0b45.up.railway.app/api/products/${id}/delete/`, {
+      await axios.put("https://ordermanagement-production-0b45.up.railway.app/api/products/${id}/update/", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setMessage('Produkt został usunięty pomyślnie!');
-      navigate('/products/admin'); // Przekieruj po pomyślnym usunięciu
+      setMessage("Produkt został zaktualizowany pomyślnie!");
+      navigate("/products-admin");
     } catch (error) {
-      console.error(
-        'Błąd podczas usuwania produktu:',
-        error.response ? error.response.data : error.message
-      );
-      setError('Wystąpił błąd podczas usuwania produktu!');
+      console.error("Błąd podczas aktualizacji produktu:", error.response ? error.response.data : error.message);
+      setError("Wystąpił błąd podczas aktualizacji produktu!");
+    }
+  };
+
+  const handleDelete = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      await axios.delete("https://ordermanagement-production-0b45.up.railway.app/api/products/${id}/delete/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setMessage("Produkt został usunięty pomyślnie!");
+      navigate("/products-admin");
+    } catch (error) {
+      console.error("Błąd podczas usuwania produktu:", error.response ? error.response.data : error.message);
+      setError("Wystąpił błąd podczas usuwania produktu!");
     }
   };
 
@@ -146,18 +125,12 @@ function ProductEdit() {
     <div className="w-screen flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">Edytuj produkt</h2>
-
         {message && (
-          <p className="flex items-center justify-center font-bold text-green-600 mb-4">
-            {message}
-          </p>
+          <p className="flex items-center justify-center font-bold text-green-600 mb-4">{message}</p>
         )}
         {error && (
-          <p className="flex items-center justify-center font-bold text-red-600 mb-4">
-            {error}
-          </p>
+          <p className="flex items-center justify-center font-bold text-red-600 mb-4">{error}</p>
         )}
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-gray-700 font-medium mb-2">Tytuł:</label>
@@ -169,7 +142,6 @@ function ProductEdit() {
               required
             />
           </div>
-
           <div>
             <label className="block text-gray-700 font-medium mb-2">Opis:</label>
             <input
@@ -180,7 +152,6 @@ function ProductEdit() {
               required
             />
           </div>
-
           <div>
             <label className="block text-gray-700 font-medium mb-2">Cena:</label>
             <input
@@ -191,7 +162,6 @@ function ProductEdit() {
               required
             />
           </div>
-
           <div>
             <label className="block text-gray-700 font-medium mb-2">Obraz produktu:</label>
             <input
@@ -201,19 +171,15 @@ function ProductEdit() {
               accept="image/*"
             />
           </div>
-
-          {/* Checkbox dla is_active */}
           <div>
             <label className="block text-gray-700 font-medium mb-2">Aktywny:</label>
             <input
               type="checkbox"
               checked={isActive}
-              onChange={() => setIsActive(!isActive)} // Przełącz wartość isActive
+              onChange={() => setIsActive(!isActive)}
               className="form-checkbox h-5 w-5 text-blue-600"
             />
           </div>
-
-          {/* Wyświetl tagi do wyboru */}
           <div>
             <label className="block text-gray-700 font-medium mb-2">Tagi:</label>
             <div className="space-y-2">
@@ -222,18 +188,16 @@ function ProductEdit() {
                   <label className="inline-flex items-center">
                     <input
                       type="checkbox"
-                      checked={selectedTags.includes(tag.id)} // Sprawdź, czy tag jest wybrany
-                      onChange={() => handleTagChange(tag.id)} // Zmień stan wybranych tagów
+                      checked={selectedTags.includes(tag.id)}
+                      onChange={() => handleTagChange(tag.id)}
                       className="form-checkbox h-5 w-5 text-blue-600"
                     />
-                    <span className="ml-2 text-gray-700">{tag.name}</span> {/* Wyświetl nazwę tagu */}
+                    <span className="ml-2 text-gray-700">{tag.name}</span>
                   </label>
                 </div>
               ))}
             </div>
           </div>
-
-          {/* Przyciski */}
           <div className="flex space-x-4">
             <button
               type="submit"
@@ -241,7 +205,6 @@ function ProductEdit() {
             >
               Zaktualizuj
             </button>
-
             <button
               type="button"
               onClick={handleDelete}

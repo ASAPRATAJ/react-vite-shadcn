@@ -1,52 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { jwtDecode } from 'jwt-decode'; // Importujemy bibliotekę do dekodowania JWT
-import { useNavigate } from 'react-router-dom'; // Zmieniamy useHistory na useNavigate
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 function ProductListAdmin() {
   const [products, setProducts] = useState([]);
-  const [tags, setTags] = useState({});
-  const [isAdmin, setIsAdmin] = useState(false); // Stan admina
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const navigate = useNavigate(); // Zmieniamy useHistory na useNavigate
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
 
     if (token) {
-      // Dekodowanie tokena, aby odczytać rolę użytkownika (is_staff)
       const decodedToken = jwtDecode(token);
-      setIsAdmin(decodedToken.is_staff); // Ustawiamy stan na podstawie is_staff
+      setIsAdmin(decodedToken.is_staff);
     }
 
     const fetchProductsAndTags = async () => {
       try {
-        // Pobieranie produktów
-        const productsResponse = await axios.get('https://ordermanagement-production-0b45.up.railway.app/api/products/', {
+        const productsResponse = await axios.get("https://ordermanagement-production-0b45.up.railway.app/api/products/", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
-        // Pobieranie tagów
-        const tagsResponse = await axios.get('https://ordermanagement-production-0b45.up.railway.app/api/products/tags/', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        // Mapowanie tagów, aby można było szybko dopasować ID -> Nazwa
-        const tagsMap = {};
-        tagsResponse.data.forEach(tag => {
-          tagsMap[tag.id] = tag.name;  // Mapujemy tag ID na jego nazwę
-        });
-
-        setProducts(productsResponse.data);  // Ustaw produkty
-        setTags(tagsMap);  // Ustaw tagi (ID -> Nazwa)
+        setProducts(productsResponse.data);
       } catch (error) {
-        setError('There was an error fetching the products or tags!');
+        setError("There was an error fetching the products or tags!");
       } finally {
         setLoading(false);
       }
@@ -55,9 +37,8 @@ function ProductListAdmin() {
     fetchProductsAndTags();
   }, []);
 
-  // Funkcja do edycji produktu, nawigacja do odpowiedniego widoku
   const handleEdit = (productId) => {
-    navigate(`/product-edit/${productId}`); // Używamy navigate zamiast history.push
+    navigate(`/product-edit/${productId}`);
   };
 
   if (loading) {
@@ -88,31 +69,28 @@ function ProductListAdmin() {
               key={product.id}
               className="border border-gray-300 rounded-lg p-4 hover:shadow-lg transition duration-300 flex flex-col h-full"
             >
-             <div className="flex-grow">
-              <img
-                src={product.image}
-                alt={product.title}
-                className="w-full h-48 object-cover rounded-md mb-4"
-              />
-              <h3 className="text-xl font-semibold mb-2">{product.title}</h3>
-              <p className="text-gray-600 mb-2">{product.description}</p>
-              <p className="text-lg font-bold mb-2">{product.price} zł</p>
-
-              {/* Wyświetlanie tagów */}
-              {product.tags && product.tags.length > 0 && (
-                <div className="flex flex-wrap space-x-2 mt-2">
-                  {product.tags.map((tagId) => (
-                    <span
-                      key={tagId}
-                      className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-semibold"
-                    >
-                      {tags[tagId]} {/* Wyświetlanie nazwy tagu na podstawie ID */}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-              {/* Wyświetlanie przycisku Edytuj produkt tylko dla admina */}
+              <div className="flex-grow">
+                <img
+                  src={product.image}
+                  alt={product.title}
+                  className="w-full h-48 object-cover rounded-md mb-4"
+                />
+                <h3 className="text-xl font-semibold mb-2">{product.title}</h3>
+                <p className="text-gray-600 mb-2">{product.description}</p>
+                <p className="text-lg font-bold mb-2">{product.price} zł</p>
+                {product.tags && product.tags.length > 0 && (
+                  <div className="flex flex-wrap space-x-2 mt-2">
+                    {product.tags.map((tag) => (
+                      <span
+                        key={tag.id}
+                        className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-semibold"
+                      >
+                        {tag.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
               {isAdmin && (
                 <button
                   onClick={() => handleEdit(product.id)}

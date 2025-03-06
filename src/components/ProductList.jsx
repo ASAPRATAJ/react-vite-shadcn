@@ -1,61 +1,60 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { jwtDecode } from 'jwt-decode'; // Importujemy jwtDecode, aby odczytać token (opcjonalnie)
-import ErrorAlert from './ErrorAlert'; // Import komponentu do wyświetlania błędów
-import SuccessAlert from './SuccessAlert'; // Import komponentu do wyświetlania sukcesów
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import ErrorAlert from "./ErrorAlert";
+import SuccessAlert from "./SuccessAlert";
 
 function ProductList() {
   const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]); // Produkty po filtracji
-  const [tags, setTags] = useState([]); // Lista tagów
-  const [selectedTag, setSelectedTag] = useState('all'); // Wybrany tag (domyślnie "all")
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [selectedTag, setSelectedTag] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [message, setMessage] = useState(''); // Przechowuje komunikaty o sukcesie
+  const [message, setMessage] = useState("");
   const [quantities, setQuantities] = useState({});
-  // Dodaj nowy stan dla animacji
   const [addedProducts, setAddedProducts] = useState({});
+
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
 
     if (!token) {
-      setError('You need to be logged in to view the products.');
+      setError("You need to be logged in to view the products.");
       setLoading(false);
       return;
     }
 
     try {
       const decodedToken = jwtDecode(token);
-      console.log('Logged in as:', decodedToken.username);
+      console.log("Logged in as:", decodedToken.username);
     } catch (e) {
-      console.error('Failed to decode token:', e);
-      setError('Invalid token.');
+      console.error("Failed to decode token:", e);
+      setError("Invalid token.");
       setLoading(false);
       return;
     }
 
     const fetchProductsAndTags = async () => {
       try {
-        const productsResponse = await axios.get('https://ordermanagement-production-0b45.up.railway.app/api/products/', {
+        const productsResponse = await axios.get("https://ordermanagement-production-0b45.up.railway.app/api/products/", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        const tagsResponse = await axios.get('https://ordermanagement-production-0b45.up.railway.app/api/products/tags/', {
+        const tagsResponse = await axios.get("https://ordermanagement-production-0b45.up.railway.app/api/products/tags/", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        const tagsWithAllOption = [{ id: 'all', name: 'Wszystkie' }, ...tagsResponse.data];
-
-        setProducts(productsResponse.data); // Ustaw produkty
-        setFilteredProducts(productsResponse.data); // Domyślnie wyświetl wszystkie produkty
-        setTags(tagsWithAllOption); // Dodaj opcję "Wszystkie" na początku listy tagów
+        const tagsWithAllOption = [{ id: "all", name: "Wszystkie" }, ...tagsResponse.data];
+        setProducts(productsResponse.data);
+        setFilteredProducts(productsResponse.data);
+        setTags(tagsWithAllOption);
       } catch (error) {
-        console.error('There was an error fetching the products or tags!', error);
-        setError('There was an error fetching the products or tags!');
+        console.error("There was an error fetching the products or tags!", error);
+        setError("There was an error fetching the products or tags!");
       } finally {
         setLoading(false);
       }
@@ -64,67 +63,52 @@ function ProductList() {
     fetchProductsAndTags();
   }, []);
 
-  // Funkcja do filtrowania produktów po tagu
   const handleTagChange = (tagId) => {
     setSelectedTag(tagId);
 
-    if (tagId === 'all') {
-      // Jeśli wybrano "Wszystkie", pokaż wszystkie produkty
+    if (tagId === "all") {
       setFilteredProducts(products);
     } else {
-      // Filtruj produkty po tagu
       const filtered = products.filter((product) =>
-        product.tags.includes(parseInt(tagId)) // Upewnij się, że porównujesz typy zgodnie z formatem danych
+        product.tags.some((tag) => tag.id === parseInt(tagId))
       );
-      console.log("Filtered products:", filtered); // Debugowanie filtrowanych produktów
+      console.log("Filtered products:", filtered);
       setFilteredProducts(filtered);
     }
   };
 
-
-
-  // Funkcja do dodawania produktu do koszyka
   const addToCart = async (productId, quantity) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
 
     try {
       await axios.post(
-        'https://ordermanagement-production-0b45.up.railway.app/api/cart/items/',
-        { product_id: productId, quantity: quantity},
+        "https://ordermanagement-production-0b45.up.railway.app/api/cart/items/",
+        { product_id: productId, quantity: quantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
-          // Znajdź produkt w tablicy produktów
-      const product = products.find(p => p.id === productId);
-      const productName = product ? product.title : 'nieznany';
-
+      const product = products.find((p) => p.id === productId);
+      const productName = product ? product.title : "nieznany";
       setQuantities((prev) => ({
         ...prev,
-        [productId]: 4
+        [productId]: 4,
       }));
-
-      // Ustawienie flagi animacji dla tego produktu
       setAddedProducts((prev) => ({
         ...prev,
-        [productId]: true
+        [productId]: true,
       }));
-
-      // Usunięcie flagi animacji po 1 sekundzie
       setTimeout(() => {
         setAddedProducts((prev) => ({
           ...prev,
-          [productId]: false
+          [productId]: false,
         }));
       }, 1500);
-
-      setMessage(`${quantity} kg produktu "${productName}" zostało pomyślnie dodane do koszyka!`); // Komunikat o sukcesie
+      setMessage(`${quantity} kg produktu "${productName}" zostało pomyślnie dodane do koszyka!`);
     } catch (error) {
-      console.error('Błąd podczas dodawania produktu do koszyka:', error);
-      setError('Nie udało się dodać produktu do koszyka.'); // Komunikat o błędzie
+      console.error("Błąd podczas dodawania produktu do koszyka:", error);
+      setError("Nie udało się dodać produktu do koszyka.");
     }
   };
 
-  // Funkcje do zwiększania i zmniejszania ilości
   const increaseQuantity = (productId) => {
     setQuantities((prev) => ({
       ...prev,
@@ -153,21 +137,13 @@ function ProductList() {
   return (
     <div className="w-screen min-h-screen px-6 bg-white shadow-md rounded-lg mt-10">
       <h1 className="text-3xl font-bold mb-6 text-center">Lista produktów</h1>
-
-      {/* Alert błędu */}
       <ErrorAlert error={error} onClose={() => setError(null)} />
-
-      {/* Alert sukcesu */}
       <SuccessAlert message={message} onClose={() => setMessage(null)} />
-
-
-      {/* Dropdown do filtrowania po tagach */}
       <div className="mb-6 flex justify-center">
         <select
           value={selectedTag}
           onChange={(e) => handleTagChange(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2
-          focus:ring-blue-500 bg-white"
+          className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
         >
           {tags.map((tag) => (
             <option key={tag.id} value={tag.id}>
@@ -176,8 +152,6 @@ function ProductList() {
           ))}
         </select>
       </div>
-
-
       {filteredProducts.length === 0 ? (
         <p className="text-center">Brak dostępnych produktów</p>
       ) : (
@@ -185,8 +159,7 @@ function ProductList() {
           {filteredProducts.map((product) => (
             <div
               key={product.id}
-              className="border border-gray-300 rounded-lg p-4 hover:shadow-lg transition duration-300
-              flex flex-col justify-between h-full"
+              className="border border-gray-300 rounded-lg p-4 hover:shadow-lg transition duration-300 flex flex-col justify-between h-full"
             >
               <img
                 src={product.image}
@@ -196,29 +169,23 @@ function ProductList() {
               <h3 className="flex justify-center text-xl font-semibold mb-2">{product.title}</h3>
               <div
                 className="product-description-container cursor-pointer"
-                onClick={() => alert(product.description)} // Wyświetlenie pełnego opisu w oknie alertu
+                onClick={() => alert(product.description)}
               >
-                <p className="flex justify-center text-gray-600 mb-2">
-                  {product.description}
-                </p>
+                <p className="flex justify-center text-gray-600 mb-2">{product.description}</p>
               </div>
               <p className="flex justify-center text-lg font-bold mb-2">{product.price} zł/kg</p>
-
-              {/* Wyświetlanie tagów */}
               {product.tags && product.tags.length > 0 && (
                 <div className="flex justify-center space-x-2 mt-2">
-                  {product.tags.map((tagId) => (
+                  {product.tags.map((tag) => (
                     <span
-                      key={tagId}
+                      key={tag.id}
                       className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-semibold"
                     >
-                      {tags[tagId]?.name || 'Nieznany'}
+                      {tag.name}
                     </span>
                   ))}
                 </div>
               )}
-
-              {/* Kontrolki ilości */}
               <div className="flex justify-center mt-4">
                 <button
                   onClick={() => decreaseQuantity(product.id)}
@@ -235,14 +202,13 @@ function ProductList() {
                   +
                 </button>
               </div>
-
               <button
                 onClick={() => addToCart(product.id, quantities[product.id] || 4)}
-                className={`mt-4 w-full py-2 rounded-md transition duration-300
-                  ${addedProducts[product.id] ? 'bg-green-500' : 'bg-blue-500 hover:bg-blue-600'}
-                  text-white`}
+                className={`mt-4 w-full py-2 rounded-md transition duration-300 ${
+                  addedProducts[product.id] ? "bg-green-500" : "bg-blue-500 hover:bg-blue-600"
+                } text-white`}
               >
-                {addedProducts[product.id] ? 'Dodano!' : 'Dodaj do koszyka'}
+                {addedProducts[product.id] ? "Dodano!" : "Dodaj do koszyka"}
               </button>
             </div>
           ))}
